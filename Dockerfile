@@ -30,8 +30,8 @@ WORKDIR /var/www/html
 COPY --from=composer-build /app /var/www/html
 
 # Copier les clés OAuth générées localement
-COPY storage/oauth-private.key storage/
-COPY storage/oauth-public.key storage/
+# COPY storage/oauth-private.key storage/
+# COPY storage/oauth-public.key storage/
 
 # Créer les répertoires nécessaires
 RUN mkdir -p storage/framework/{cache,data,sessions,testing,views} \
@@ -42,6 +42,13 @@ RUN mkdir -p storage/framework/{cache,data,sessions,testing,views} \
 USER laravel
 
 EXPOSE 8000
+
+# PAS de COPY pour les clés
+RUN php artisan key:generate
+RUN php artisan migrate --force
+RUN php artisan passport:install --uuids --force
+
+
 
 # Default command - can be overridden in docker-compose.yml
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
